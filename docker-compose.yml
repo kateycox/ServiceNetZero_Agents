@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: foodservice_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  machine1:
+    build:
+      context: .
+      dockerfile: services/machine1/Dockerfile
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./uploads:/workspace/uploads
+
+  machine2:
+    build:
+      context: .
+      dockerfile: services/machine2/Dockerfile
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+
+  machine3:
+    build:
+      context: .
+      dockerfile: services/machine3/Dockerfile
+    ports:
+      - "8003:8003"
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+
+  machine4:
+    build:
+      context: .
+      dockerfile: services/machine4/Dockerfile
+    ports:
+      - "8004:8004"
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+
+  machine5:
+    build:
+      context: .
+      dockerfile: services/machine5/Dockerfile
+    ports:
+      - "8005:8005"
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+
+  machine6:
+    build:
+      context: .
+      dockerfile: services/machine6/Dockerfile
+    ports:
+      - "8006:8006"
+    depends_on:
+      - postgres
+      - redis
+      - machine1
+      - machine2
+      - machine3
+      - machine4
+      - machine5
+    env_file:
+      - .env
+
+  api_gateway:
+    build:
+      context: .
+      dockerfile: api_gateway/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - machine1
+      - machine2
+      - machine3
+      - machine4
+      - machine5
+      - machine6
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:
+  redis_data:
